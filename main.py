@@ -12,7 +12,7 @@ def main():
     query = raw_input("Search: ")
     # print api.search_movie(query, lucky=True)
     with open('results.json', 'w') as fout:
-        fout.write(json.dumps(api.search_tv(query, lucky=False), indent=1))
+        fout.write(json.dumps(api.search_videogame(query, lucky=False), indent=1))
     
 
 

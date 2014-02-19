@@ -1,34 +1,39 @@
 from utils import get_soup
-from constants import SEARCH_MOVIE, SEARCH_TV_SHOW
+from constants import SEARCH_BY_TITLE
+from constants import SEARCH_MOVIE
+from constants import SEARCH_TV
+from constants import SEARCH_VIDEOGAME
+import re
 
 class IMDB(object):
     """
     Class that parses the IMDb pages and returns the request data
     """
 
-    def search_movie(self, query, lucky=False):
+    def _category_search(self, category_url, query, lucky):
         """
-        Returns the list of results of a movie search, each one
-        containing the primary image, title and link to its imdb page
+        Returns a list of results of a category search on imdb.
+        Each result consists of an dictionary containing the
+        primary image, title, link to the result's imdb page 
+        and its id.
         """
-        soup = get_soup(SEARCH_MOVIE, {'q': query})
         results = []
+        soup = get_soup(category_url, {'q': query})
 
-        # returns the first result immediately if lucky is True
-        if lucky:
+        if lucky: # returns only the first search result
             first = soup.find(class_="findResult")
-            results.append(self._search_results_parser(first))
+            results.append(self._search_title_results_parser(first))
         else:
             for item in soup.find_all(class_="findResult"):
-                results.append(self._search_results_parser(item))
+                results.append(self._search_title_results_parser(item))
 
         return results
 
 
-    def _search_results_parser(self, findResult):
+    def _search_title_results_parser(self, findResult):
         """
-        Parses the information about a movie contained in a search result item
-        and returns an object with it
+        Parses the information contained in a search result item
+        and returns a dictionary with it.
         """
         result = {}
         result['text'] = findResult.find('td', 
@@ -37,24 +42,52 @@ class IMDB(object):
             class_="result_text").a['href']
         result['image'] = findResult.find('td',
             class_="primary_photo").a.img['src']
+
+        result['id'] = re.search('^/[a-z]{1,}/[a-z]{2}(\d+)/.*$', 
+                                result['url']).group(1)
+
         return result
+
+
+    def search_title(self, query, lucky=False):
+        """
+        Returns the list of results of a search by title.
+        Each result consists of an dictionary containing the
+        primary image, title, link to the result's imdb page
+        and its id.
+        """
+        return self._category_search(SEARCH_BY_TITLE, query, lucky)
+
+
+    def search_movie(self, query, lucky=False):
+        """
+        Returns the list of results of a movie search.
+        Each result consists of an dictionary containing the
+        primary image, title, link to the movie's imdb page
+        and its id.
+        """
+        return self._category_search(SEARCH_MOVIE, query, lucky)
+
 
     def search_tv(self, query, lucky=False):
         """
-        Returns the list of results of a tv show sarch, each one
-        containing the image, title and url to its imdb page
+        Returns the list of results of a tv search.
+        Each result consists of an dictionary containing the
+        primary image, title, link to the show's imdb page
+        and its id.
         """
-        soup = get_soup(SEARCH_TV_SHOW, {'q': query})
-        results = []
+        return self._category_search(SEARCH_TV, query, lucky)
 
-        if lucky:
-            first = soup.find(class_="findResult")
-            results.append(self._search_results_parser(first))
-        else:
-            for item in soup.find_all(class_="findResult"):
-                results.append(self._search_results_parser(item))
 
-        return results
+    def search_videogame(self, query, lucky=False):
+        """
+        Returns the list of results of a videogame search.
+        Each result consists of an dictionary containing the
+        primary image, title, link to the game's imdb page
+        and its id.
+        """
+        return self._category_search(SEARCH_VIDEOGAME, query, lucky)
+
 
     def get_movie(self, movieID):
         """
