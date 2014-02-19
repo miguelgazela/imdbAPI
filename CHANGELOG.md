@@ -7,3 +7,4 @@
 - Add: pytest for testing purposes
 - Add: Search by tv title
 - Add: Search by videogame title
+- Add: Search by name (actor, writer, director, etc)

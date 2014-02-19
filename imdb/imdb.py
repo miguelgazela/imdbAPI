@@ -1,8 +1,7 @@
+#!/usr/bin/env python
+
 from utils import get_soup
-from constants import SEARCH_BY_TITLE
-from constants import SEARCH_MOVIE
-from constants import SEARCH_TV
-from constants import SEARCH_VIDEOGAME
+import constants as const
 import re
 
 class IMDB(object):
@@ -49,44 +48,40 @@ class IMDB(object):
         return result
 
 
+    def search_name(self, query, lucky=False):
+        """
+        Returns the list of results of a search by the name
+        of an actor, writer, director, etc.
+        """
+        return self._category_search(const.SEARCH_NAME, query, lucky)
+
+
     def search_title(self, query, lucky=False):
         """
         Returns the list of results of a search by title.
-        Each result consists of an dictionary containing the
-        primary image, title, link to the result's imdb page
-        and its id.
         """
-        return self._category_search(SEARCH_BY_TITLE, query, lucky)
+        return self._category_search(const.SEARCH_TITLE, query, lucky)
 
 
     def search_movie(self, query, lucky=False):
         """
         Returns the list of results of a movie search.
-        Each result consists of an dictionary containing the
-        primary image, title, link to the movie's imdb page
-        and its id.
         """
-        return self._category_search(SEARCH_MOVIE, query, lucky)
+        return self._category_search(const.SEARCH_MOVIE, query, lucky)
 
 
     def search_tv(self, query, lucky=False):
         """
         Returns the list of results of a tv search.
-        Each result consists of an dictionary containing the
-        primary image, title, link to the show's imdb page
-        and its id.
         """
-        return self._category_search(SEARCH_TV, query, lucky)
+        return self._category_search(const.SEARCH_TV, query, lucky)
 
 
     def search_videogame(self, query, lucky=False):
         """
         Returns the list of results of a videogame search.
-        Each result consists of an dictionary containing the
-        primary image, title, link to the game's imdb page
-        and its id.
         """
-        return self._category_search(SEARCH_VIDEOGAME, query, lucky)
+        return self._category_search(const.SEARCH_VIDEOGAME, query, lucky)
 
 
     def get_movie(self, movieID):
