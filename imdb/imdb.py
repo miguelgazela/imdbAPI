@@ -17,15 +17,15 @@ class IMDB(object):
         # returns the first result immediately if lucky is True
         if lucky:
             first = soup.find(class_="findResult")
-            results.append(self._search_movie_parser(first))
+            results.append(self._search_results_parser(first))
         else:
             for item in soup.find_all(class_="findResult"):
-                results.append(self._search_movie_parser(item))
+                results.append(self._search_results_parser(item))
 
         return results
 
 
-    def _search_movie_parser(self, findResult):
+    def _search_results_parser(self, findResult):
         """
         Parses the information about a movie contained in a search result item
         and returns an object with it
@@ -39,10 +39,27 @@ class IMDB(object):
             class_="primary_photo").a.img['src']
         return result
 
-    def search_tv_show(self, query):
+    def search_tv(self, query, lucky=False):
         """
         Returns the list of results of a tv show sarch, each one
         containing the image, title and url to its imdb page
+        """
+        soup = get_soup(SEARCH_TV_SHOW, {'q': query})
+        results = []
+
+        if lucky:
+            first = soup.find(class_="findResult")
+            results.append(self._search_results_parser(first))
+        else:
+            for item in soup.find_all(class_="findResult"):
+                results.append(self._search_results_parser(item))
+
+        return results
+
+    def get_movie(self, movieID):
+        """
+        Returns a movie object with all the info contained 
+        in its imdb page
         """
         pass
 
@@ -79,14 +96,16 @@ class IMDB(object):
             for item in list_theaters:
                 theater = {}
                 theater['name'] = item.select('h3 > a > span')[0].text
-                theater['address'] = item.select(
-                    '.address span[itemprop="streetAddress"]')[0].text
-                theater['city'] = item.select(
-                    '.address span[itemprop="addressLocality"]')[0].text
-                theater['postalCode'] = item.select(
-                    '.address span[itemprop="postalCode"]')[0].text
-                theater['phone'] = item.select(
-                    '.address span[itemprop="telephone"]')[0].text
+
+                # parse address anc contact info
+                properties = [
+                    ('address', 'streetAddress'), ('city', 'addressLocality'), 
+                    ('postalCode', 'postalCode'), ('phone', 'telephone'),
+                ]
+                for obj_prop, item_prop in properties:
+                    theater[obj_prop] = item.select(
+                        '.address span[itemprop="%s"]' % item_prop
+                    )[0].text
 
                 # add today's showtimes
                 showtimes = item.find(class_='showtimes').select(
