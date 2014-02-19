@@ -1,6 +1,8 @@
 imdbAPI
 =======
 
+![imdbAPI](https://raw.github.com/miguelgazela/imdbAPI/master/imdbAPI.png)
+
 Unofficial Python API for the Internet Movie Database (IMDb).
 
 ## Features
