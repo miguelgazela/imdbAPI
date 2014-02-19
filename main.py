@@ -6,10 +6,10 @@ from imdb import IMDB
 def main():
     api = IMDB()
 
-    print api.get_movies_near_you()
+    # print api.get_movies_near_you()
 
-    # query = raw_input("Search: ")
-    # print len(api.search_movie(query))
+    query = raw_input("Search: ")
+    print api.search_movie(query, lucky=True)
 
 
 if __name__ == "__main__":

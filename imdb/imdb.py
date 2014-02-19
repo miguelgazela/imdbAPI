@@ -1,10 +1,50 @@
 from utils import get_soup
-from constants import SEARCH_MOVIE_TITLE
+from constants import SEARCH_MOVIE, SEARCH_TV_SHOW
 
 class IMDB(object):
     """
     Class that parses the IMDb pages and returns the request data
     """
+
+    def search_movie(self, query, lucky=False):
+        """
+        Returns the list of results of a movie search, each one
+        containing the primary image, title and link to its imdb page
+        """
+        soup = get_soup(SEARCH_MOVIE, {'q': query})
+        results = []
+
+        # returns the first result immediately if lucky is True
+        if lucky:
+            first = soup.find(class_="findResult")
+            results.append(self._search_movie_parser(first))
+        else:
+            for item in soup.find_all(class_="findResult"):
+                results.append(self._search_movie_parser(item))
+
+        return results
+
+
+    def _search_movie_parser(self, findResult):
+        """
+        Parses the information about a movie contained in a search result item
+        and returns an object with it
+        """
+        result = {}
+        result['text'] = findResult.find('td', 
+            class_="result_text").text.strip()
+        result['url'] = findResult.find('td',
+            class_="result_text").a['href']
+        result['image'] = findResult.find('td',
+            class_="primary_photo").a.img['src']
+        return result
+
+    def search_tv_show(self, query):
+        """
+        Returns the list of results of a tv show sarch, each one
+        containing the image, title and url to its imdb page
+        """
+        pass
 
     def get_movies_near_you(self):
         """
@@ -58,28 +98,3 @@ class IMDB(object):
             movies.append(movie)
         return movies
 
-
-    def search_movie(self, query):
-        """
-        Returns the list of results of a movie search, each one
-        containing the image, title and link to its imdb page
-        """
-        soup = get_soup(SEARCH_MOVIE_TITLE, {'q': query})
-        results = []
-
-        for item in soup.find_all(class_="findResult"):
-            result = {}
-            result['text'] = item.find('td', class_="result_text").text.strip()
-            result['url'] = item.find('td', class_="result_text").a['href']
-            result['image'] = item.find('td', class_="primary_photo").a.img['src']
-            results.append(result)
-
-        return results
-
-
-    def search_tv_show(self, query):
-        """
-        Returns the list of results of a tv show sarch, each one
-        containing the image, title and url to its imdb page
-        """
-        pass
