@@ -34,18 +34,14 @@ class IMDB(object):
         Parses the information contained in a search result item
         and returns a dictionary with it.
         """
-        result = {}
-        result['text'] = findResult.find('td', 
-            class_="result_text").text.strip()
-        result['url'] = findResult.find('td',
-            class_="result_text").a['href']
-        result['image'] = findResult.find('td',
-            class_="primary_photo").a.img['src']
 
-        result['id'] = re.search('^/[a-z]{1,}/[a-z]{2}(\d+)/.*$', 
-                                result['url']).group(1)
-
-        return result
+        return {
+            'text': findResult.find('td', class_="result_text").text.strip(),
+            'url': findResult.find('td', class_="result_text").a['href'],
+            'image': findResult.find('td', class_="primary_photo").a.img['src'],
+            'id': re.search('^/[a-z]{1,}/[a-z]{2}(\d+)/.*$', 
+                            result['url']).group(1)
+        }
 
 
     def search_name(self, query, lucky=False):
@@ -102,20 +98,19 @@ class IMDB(object):
         movies = []
 
         for item in list_movies:
-            movie = {}
-
             page = item.find('a')['href']
             soup = get_soup(page)
             movie_info = soup.select('.article > .article .overview-top')[0]
             
             # fill in the movie info
-            movie['title'] = movie_info.h4.a.text
-            movie['url'] = movie_info.h4.a['href']
-            movie['runtime'] = movie_info.p.time.text
-            movie['ratingValue'] = movie_info.select(
-                '.rating_txt meta[itemprop="ratingValue"]')[0]['content']
-            movie['description'] = movie_info.select('.outline')[0]\
-                .text.strip()
+            movie = {
+                'title': movie_info.h4.a.text,
+                'url': movie_info.h4.a['href'],
+                'runtime': movie_info.p.time.text,
+                'ratingValue': movie_info.select(
+                    '.rating_txt meta[itemprop="ratingValue"]')[0]['content'],
+                'description': movie_info.select('.outline')[0].text.strip()
+            }
 
             # add the list of theaters where the movie is playing
             movie['theaters'] = []
