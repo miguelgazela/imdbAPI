@@ -35,13 +35,16 @@ class IMDB(object):
         and returns a dictionary with it.
         """
 
-        return {
+        result = {
             'text': findResult.find('td', class_="result_text").text.strip(),
             'url': findResult.find('td', class_="result_text").a['href'],
             'image': findResult.find('td', class_="primary_photo").a.img['src'],
-            'id': re.search('^/[a-z]{1,}/[a-z]{2}(\d+)/.*$', 
-                            result['url']).group(1)
         }
+        
+        result['id'] = re.search('^/[a-z]{1,}/[a-z]{2}(\d+)/.*$', 
+                            result['url']).group(1)
+
+        return result
 
 
     def search_name(self, query, lucky=False):
